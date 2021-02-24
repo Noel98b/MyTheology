@@ -1,5 +1,8 @@
 package com.example.mytheology
 
+import android.app.Activity
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
@@ -7,11 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import java.io.IOException
+import java.security.acl.Group
 
 class SearchActivity : AppCompatActivity() {
 
     private var apiService:ApiServiceClass = ApiServiceClass()
     private var searchData: ApiServiceClass.SearchPackage? = null
+    private var b:Bundle?=null
     var searchTerm: TextView? = null
     var resultBox: LinearLayout? = null
     val lparams = LinearLayout.LayoutParams(
@@ -22,7 +27,7 @@ class SearchActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
-
+        b = intent.extras
 
         searchTerm = findViewById<TextView>(R.id.searchTerm)
         resultBox = findViewById<LinearLayout>(R.id.resultBox)
@@ -88,15 +93,35 @@ class SearchActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG
             ).show()
         }
+        if (searchData!=null){
+            for (item in searchData!!.data.verses){
+                val gr = RadioGroup(this)
+                val addBtn = Button(this)
+                val tv = TextView(this)
+                gr.orientation = RadioGroup.HORIZONTAL
+                addBtn.text = "Add"
+                tv.setTextColor(0xff000000)
+                tv.layoutParams = lparams
+                tv.text = item.reference + ": " + item.text + "\n"
+                tv.width = 1000
+                tv.setTextIsSelectable(true)
+                gr.addView(tv)
+                gr.addView(addBtn)
+                resultBox?.addView(gr)
+                addBtn.setOnClickListener(){
+                    val resultb = Bundle()
+                    resultb.putString("0", this.b!!.getString("0").toString())
+                    resultb.putString("1", this.b!!.getString("1").toString())
+                    resultb.putString("2", tv.text.toString())
+                    val resultIntent = Intent()
+                    resultIntent.putExtras(resultb)
+                    setResult(Activity.RESULT_OK, resultIntent)
 
-        for (item in searchData!!.data.verses){
-            val tv = TextView(this)
-            tv.setTextColor(0xff000000)
-            tv.layoutParams = lparams
-            tv.text = item.reference + ": " + item.text + "\n"
-            tv.setTextIsSelectable(true)
-            resultBox?.addView(tv)
+                    //Bible API gets called in editentryactivity
+                }
+                //resultBox?.addView(tv)
+                //resultBox?.addView(addBtn)
+            }
         }
     }
-
 }

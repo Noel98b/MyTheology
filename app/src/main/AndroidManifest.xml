@@ -15,7 +15,11 @@
             android:parentActivityName=".EditEntryActivity"></activity>
         <activity
             android:name=".EditEntryActivity"
-            android:parentActivityName=".CreateEntryActivity" />
+            android:parentActivityName=".CreateEntryActivity" >
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".CreateEntryActivity"
             android:parentActivityName=".SectionActivity" />
