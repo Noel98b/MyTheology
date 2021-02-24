@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
                 sectionListElement.itemDataText= textEditText.text.toString()
                 sectionListElement.done = false
                 sectionListElement.entries = arrayListOf<Entry>()
-                val newItemData = fireBaseService.newSection(sectionListElement)
+                fireBaseService.newSection(sectionListElement)
                 Toast.makeText(
                         this,
                         "Neues Thema " + sectionListElement.itemDataText + " wurde erstellt",
