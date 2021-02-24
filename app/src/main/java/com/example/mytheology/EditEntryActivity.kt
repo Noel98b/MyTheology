@@ -1,5 +1,6 @@
 package com.example.mytheology
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Html
@@ -48,6 +49,8 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     public var verseSpinner: Spinner? = null
     public var verseSpinner2: Spinner? = null
     private val allBooks = arrayOfNulls<String?>(66) //The Bible consists of 66 Books
+    var title: TextView? = null
+    var text: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +64,8 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         verseSpinner = findViewById<Spinner>(R.id.Verse)
         verseSpinner2 = findViewById<Spinner>(R.id.Verse2)
 
-
-        var title: TextView = findViewById<TextView>(R.id.EditTitle)
-        var text: TextView = findViewById<TextView>(R.id.EditText)
+         title = findViewById<TextView>(R.id.EditTitle)
+         text= findViewById<TextView>(R.id.EditText)
 
         //unpack bundle and create actionbar
         val b = intent.extras
@@ -78,8 +80,8 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.getValue() != null) {
                     val map = snapshot.getValue() as HashMap<String, String>
-                    title.text = map.get("title") as String?
-                    text.text = map.get("entry") as String?
+                    title?.text = map.get("title") as String?
+                    text?.text = map.get("entry") as String?
                 }
             }
 
@@ -92,8 +94,8 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val save: Button = findViewById(R.id.Save) as Button
         save.setOnClickListener() {
 
-            database.child(sectionID.toString()).child("entries").child(entryId).child("entry").setValue(text.text.toString())
-            database.child(sectionID.toString()).child("entries").child(entryId).child("title").setValue(title.text.toString())
+            database.child(sectionID.toString()).child("entries").child(entryId).child("entry").setValue(text?.text.toString())
+            database.child(sectionID.toString()).child("entries").child(entryId).child("title").setValue(title?.text.toString())
             Toast.makeText(applicationContext, "Änderungen gespeichert.", Toast.LENGTH_LONG).show()
         }
 
@@ -127,8 +129,12 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
         val searchbutton :Button = findViewById(R.id.searchButton) as Button
         searchbutton.setOnClickListener(){
-            val intent = Intent(this@EditEntryActivity, SearchActivity::class.java)
-            startActivity(intent)
+            val bforSearch = Bundle()
+            bforSearch.putString("0", entryId)
+            bforSearch.putString("1", sectionID)
+            val intent2 = Intent(this@EditEntryActivity, SearchActivity::class.java)
+            intent2.putExtras(b)
+            startActivity(intent2)
         }
 
         val add: Button = findViewById(R.id.add) as Button
@@ -170,7 +176,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
                 })
                 Thread.sleep(900)
-                text.text = text.text.toString() + Html.fromHtml(content)
+                text?.text = text?.text.toString() + Html.fromHtml(content)
             }else if ( versesArray[verseSpinner!!.selectedItemPosition]?.toInt()!! > versesArray[verseSpinner2!!.selectedItemPosition]?.toInt()!!){
                 Toast.makeText(applicationContext, "Please enter a valid verse range ", Toast.LENGTH_LONG).show()
             }else{
@@ -201,9 +207,11 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
                 })
                 Thread.sleep(900)
-                text.text = Html.fromHtml(content)
+                text?.text = Html.fromHtml(content)
             }
         }
+
+
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -265,7 +273,22 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         updatespinner(versesArray)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
+                    text?.text = text?.text.toString() + data.extras?.getString("2")
+                    Toast.makeText(applicationContext, "Es gab kein Problem", Toast.LENGTH_LONG).show()
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(applicationContext, "Es gab kein Problem", Toast.LENGTH_LONG).show()
+            }
+        }
 
+        Toast.makeText(applicationContext, "Es gab kein Problem", Toast.LENGTH_LONG).show()
+    }
 
 class Package(val data: Data)
 
