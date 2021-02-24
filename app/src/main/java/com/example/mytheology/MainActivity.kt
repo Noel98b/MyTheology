@@ -15,23 +15,18 @@ import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity(), UpdateAndDelete {
 
-    //Firebase
-    lateinit var database:DatabaseReference
-    var List:MutableList<MainModel>?=null
+    lateinit var List: MutableList<MainModel>
     lateinit var adapter: AdapterClass
-    private var listViewItem : ListView?=null
-    private var MainEmptyMessage: TextView? = null
-
-
+    lateinit var listViewItem : ListView
+    lateinit var MainEmptyMessage: TextView
+    lateinit var fireBaseService:FirebaseMapper
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        //Firebase
-        database=FirebaseDatabase.getInstance().reference
+        fireBaseService = FirebaseMapper()
 
 
         //Main Elements
@@ -46,19 +41,16 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
             alertDialog.setTitle("Erstelle ein Thema")
             alertDialog.setView(textEditText)
             alertDialog.setPositiveButton("Hinzufügen"){ dialog, i ->
-                val todoItemData = MainModel.createList()
-                todoItemData.itemDataText= textEditText.text.toString()
-                todoItemData.done = false
-                todoItemData.entries = arrayListOf<Entry>()
-                val newItemData = database.child("section").push()
-                todoItemData.UID = newItemData.key
-                newItemData.setValue(todoItemData)
+                val sectionListElement = MainModel.createList()
+                sectionListElement.itemDataText= textEditText.text.toString()
+                sectionListElement.done = false
+                sectionListElement.entries = arrayListOf<Entry>()
+                val newItemData = fireBaseService.newSection(sectionListElement)
                 Toast.makeText(
-                    this,
-                    "Neues Thema " + todoItemData.itemDataText + " wurde erstellt",
-                    Toast.LENGTH_LONG
+                        this,
+                        "Neues Thema " + sectionListElement.itemDataText + " wurde erstellt",
+                        Toast.LENGTH_LONG
                 ).show()
-
             }
             alertDialog.show()
         }
@@ -66,7 +58,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         List = mutableListOf<MainModel>()
         adapter = AdapterClass(this, List!!)
         listViewItem!!.adapter = adapter
-        database.addValueEventListener(object : ValueEventListener {
+        fireBaseService.database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 List!!.clear()
                 addItemToList(snapshot)
@@ -103,12 +95,12 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
     }
 
     override fun modifyItem(itemUID: String, isDone: Boolean) {
-        val itemReference = database.child("section").child(itemUID)
+        val itemReference = fireBaseService.database.child("section").child(itemUID)
         itemReference.child("done").setValue(isDone)
     }
 
     override fun onItemDelete(itemUID: String) {
-        val itemReference = database.child("section").child(itemUID)
+        val itemReference = fireBaseService.database.child("section").child(itemUID)
         itemReference.removeValue()
         adapter.notifyDataSetChanged()
     }
