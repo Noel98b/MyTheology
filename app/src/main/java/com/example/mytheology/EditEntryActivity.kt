@@ -17,7 +17,7 @@ import com.example.mytheology.ApiServiceClass
 
 class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
-    val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("section")
+    lateinit var fireBaseService:FirebaseMapper
     lateinit var adapter: EntryAdapter
     private var listViewItem: ListView? = null
     private var entryId: String = ""
@@ -56,7 +56,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_entry)
 
-        //For the Bible Menu
+        fireBaseService = FirebaseMapper()
 
         //declare all spinners
         bookSpinner = findViewById<Spinner>(R.id.Book)
@@ -75,7 +75,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         actionBar.setDisplayHomeAsUpEnabled(true)
 
         val sectionID = b!!.getString("1")
-        database.child(sectionID.toString()).child("entries").child(entryId).addValueEventListener(object :
+        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").child(entryId).addValueEventListener(object :
                 ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.getValue() != null) {
@@ -94,8 +94,9 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val save: Button = findViewById(R.id.Save) as Button
         save.setOnClickListener() {
 
-            database.child(sectionID.toString()).child("entries").child(entryId).child("entry").setValue(text?.text.toString())
-            database.child(sectionID.toString()).child("entries").child(entryId).child("title").setValue(title?.text.toString())
+            if (sectionID != null) {
+                fireBaseService.saveEntry(entryId,sectionID, text?.text.toString(), title?.text.toString())
+            }
             Toast.makeText(applicationContext, "Änderungen gespeichert.", Toast.LENGTH_LONG).show()
         }
 
