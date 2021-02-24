@@ -25,9 +25,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         fireBaseService = FirebaseMapper()
-
 
         //Main Elements
         listViewItem = findViewById(R.id.topics_list)
