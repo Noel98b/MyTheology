@@ -14,7 +14,7 @@ import com.google.firebase.database.*
 
 class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
     //Firebase
-    val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("section")
+    lateinit var fireBaseService:FirebaseMapper
     var List:MutableList<Entry>?=null
     lateinit var adapter: EntryAdapter
     private var listViewItem : ListView?=null
@@ -27,6 +27,8 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
         listViewItem = findViewById(R.id.entries_list)
         emptyMessage = findViewById(R.id.Emptymessage)
+
+        fireBaseService = FirebaseMapper()
 
         //unpack bundle and create actionbar
         val b = intent.extras
@@ -42,7 +44,7 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         List = mutableListOf<Entry>()
         adapter = EntryAdapter(this, List!!)
         listViewItem!!.adapter = adapter
-        database.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
+        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 List!!.clear()
                 addItemToList(snapshot)
@@ -72,7 +74,7 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 thisentry.entry = ""
                 var lastKey:String? = null
                 var lastKeyInt = 0
-                database.child(sectionID.toString()).child("entries").push().setValue(thisentry)
+                fireBaseService.sectionReference.child(sectionID.toString()).child("entries").push().setValue(thisentry)
             }
             alertDialog.show()
         }
@@ -98,14 +100,8 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
     }
 
-    override fun modifyItem(ItemUID: String) {
-        TODO("Not yet implemented")
-    }
-
     override fun onItemDelete( entryID: String) {
-        val itemReference = database.child(sectionID.toString()).child("entries").child(entryID)
-        Toast.makeText(applicationContext, itemReference.toString(), Toast.LENGTH_LONG).show()
-        itemReference.removeValue()
+        fireBaseService.onEntryDelete(entryID,sectionID.toString())
         adapter.notifyDataSetChanged()
     }
 
@@ -116,7 +112,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         val intent = Intent(this@SectionActivity, EditEntryActivity::class.java)
         intent.putExtras(b)
         startActivity(intent)
-        //Bible API gets called in editentryactivity
     }
 
 }

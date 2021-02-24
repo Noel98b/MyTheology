@@ -45,6 +45,11 @@ class FirebaseMapper {
         itemReference.removeValue()
     }
 
+    fun onEntryDelete(entryId: String, sectionID: String){
+        val itemReference = sectionReference.child(sectionID.toString()).child("entries").child(entryId)
+        itemReference.removeValue()
+    }
+
 
 
 }
