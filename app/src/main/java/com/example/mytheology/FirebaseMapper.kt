@@ -40,6 +40,11 @@ class FirebaseMapper {
         return curledEntry
     }
 
+    fun onItemDelete(itemUID:String){
+        val itemReference = database.child("section").child(itemUID)
+        itemReference.removeValue()
+    }
+
 
 
 }
