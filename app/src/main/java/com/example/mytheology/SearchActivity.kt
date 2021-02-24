@@ -29,7 +29,7 @@ class SearchActivity : AppCompatActivity() {
 
         val actionBar = supportActionBar
         actionBar!!.title = "Bibel Suche"
-        //actionBar.setDisplayHomeAsUpEnabled(true)
+        actionBar.setDisplayHomeAsUpEnabled(false)
 
         val searchButton: ImageButton = findViewById<ImageButton>(R.id.searchButton)
         searchButton.setOnClickListener() {
