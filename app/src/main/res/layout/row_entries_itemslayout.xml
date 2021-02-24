@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="15dp"
+    android:background="@drawable/custom"
+    android:clickable="true"
+    android:id="@+id/RelLayoutEntry"
+    android:actionViewClass="android.Widget.RelativeLayout"
+    android:paddingTop="3dp"
+    >
+
+
+    <TextView
+        android:id="@+id/EntryTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
+        android:paddingLeft="35dp"
+        android:textColor="@color/black"
+        android:textSize="20sp"></TextView>
+
+    <TextView
+        android:id="@+id/EntryText"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/EntryTitle"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="35dp"
+        android:textColor="@color/black"
+        android:textSize="15sp"></TextView>
+
+    <ImageButton
+        android:id="@+id/entryclose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/ItemText"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="@android:color/transparent"
+        android:gravity="end"
+        android:src="@android:drawable/btn_dialog"></ImageButton>
+
+</RelativeLayout>

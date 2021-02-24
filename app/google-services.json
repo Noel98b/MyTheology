@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "537605569114",
+    "firebase_url": "https://mytheology-default-rtdb.firebaseio.com",
+    "project_id": "mytheology",
+    "storage_bucket": "mytheology.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537605569114:android:daf0b24a49de9c29197663",
+        "android_client_info": {
+          "package_name": "com.example.mytheology"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "537605569114-kn5b2uuvubuu0ppdkd9m2l5eduhqn7l9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6StJZhGTkAqNzPZPgaXJeaWrWhc5M4Ek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "537605569114-kn5b2uuvubuu0ppdkd9m2l5eduhqn7l9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,87 @@
+[
+  {
+    "Name":"Solomon",
+    "Content": [
+
+      { "SectionId": "01",
+        "Title": "Proverbs 3:28",
+        "Texts": [
+          { "TextId":"0101",
+            "Maintext": "Proverbs 4:22: Above all else guard your heart.",
+            "Comments": [
+              {"CommId": "01",
+                "ComText": "Comment1"
+              },
+              {"CommId": "02",
+                "ComText": "Comment2"}
+            ]
+          }
+        ]
+      },
+
+      { "SectionId": "02",
+        "Title": "Proverbs 3:28",
+        "Texts": [
+          { "TextId":"0101",
+            "Maintext": "Do not plot harm against your neighbor,\n    who lives trustfully near you.",
+            "Comments": [
+              {"CommId": "01",
+                "ComText": "Comment1"
+              },
+              {"CommId": "02",
+                "ComText": "Comment2"}
+            ]
+          }
+        ]
+      }
+
+     ]
+
+  },
+  {
+    "Name":"Jesus",
+    "Content": [
+
+      { "SectionId": "03",
+        "Title": "John 3",
+        "Texts": [
+          { "TextId":"0101",
+            "Maintext": "Jesus replied, “Very truly I tell you, no one can see the kingdom of God unless they are born again",
+            "Comments": [
+              {"CommId": "01",
+                "ComText": "Comment1"
+              },
+              {"CommId": "02",
+                "ComText": "Comment2"}
+            ]
+          }
+        ]
+      }
+      ]
+  },
+  {
+    "Name":"Psalmen",
+    "Content": [
+      {
+        "SectionId": "04",
+        "Title": "Proverbs 1:1",
+        "Texts": [
+          {
+            "TextId": "0101",
+            "Maintext": "Listen, my son, to your father’s instruction\n    and do not forsake your mother’s teaching.",
+            "Comments": [
+              {
+                "CommId": "01",
+                "ComText": "Comment1"
+              },
+              {
+                "CommId": "02",
+                "ComText": "Comment2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
