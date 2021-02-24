@@ -17,16 +17,16 @@ import com.example.mytheology.ApiServiceClass
 
 class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
-    val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("section")
+    lateinit var fireBaseService:FirebaseMapper
     lateinit var adapter: EntryAdapter
-    private var listViewItem: ListView? = null
-    private var entryId: String = ""
-    private var verses: String = ""
+    lateinit var listViewItem: ListView
+    lateinit var entryId: String
+    lateinit var verses: String
     private var versesArray = arrayOf<String?>()
     private var chapters = arrayOf<String?>()
-    private var apiService:ApiServiceClass = ApiServiceClass()
+    lateinit var apiService:ApiServiceClass
 
-    //For the Bible Menu
+    //Data which can be initialized and stored locally to inhibit data exchange with api
     var booksAndChaptersPairList = arrayListOf(Pair("1.Mose", 50), Pair("2.Mose", 40), Pair("3.Mose", 27), Pair("4.Mose", 36), Pair("5.Mose", 34), Pair("Josua", 24), Pair("Richter", 21), Pair("Ruth", 4),
             Pair("1.Samuel", 31), Pair("2.Samuel", 24), Pair("1.Könige", 22), Pair("2.Könige", 25), Pair("1.Chronik", 29), Pair("2.Chronik", 36), Pair("Esra", 10), Pair("Nehemia", 13), Pair("Esther", 10), Pair("Hiob", 42),
             Pair("Psalmen", 150), Pair("Sprüche", 31), Pair("Prediger", 12), Pair("Hohelied", 8), Pair("Jesaja", 66), Pair("Jeremia", 52), Pair("Klagelieder", 5), Pair("Hesekiel", 48), Pair("Daniel", 12), Pair("Hosea", 14),
@@ -44,19 +44,20 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             Pair("Hebäer", "HEB"), Pair("Jakobus", "JAS"), Pair("1.Petrus", "1PE"), Pair("2.Petrus", "2PE"), Pair("1.Johannes", "1JN"), Pair("2.Johannes", "2JN"), Pair("3.Johannes", "3JN"), Pair("Judas", "JUD"), Pair("Offenbarung", "REV"))
 
     //declare all spinners
-    var bookSpinner: Spinner? = null
-    var chapterSpinner: Spinner? = null
-    public var verseSpinner: Spinner? = null
-    public var verseSpinner2: Spinner? = null
+    private lateinit var bookSpinner: Spinner
+    private lateinit var chapterSpinner: Spinner
+    private lateinit var verseSpinner: Spinner
+    private lateinit var verseSpinner2: Spinner
     private val allBooks = arrayOfNulls<String?>(66) //The Bible consists of 66 Books
-    var title: TextView? = null
-    var text: TextView? = null
+    private lateinit var title: TextView
+    private lateinit var text: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_entry)
 
-        //For the Bible Menu
+        fireBaseService = FirebaseMapper()
+        apiService = ApiServiceClass()
 
         //declare all spinners
         bookSpinner = findViewById<Spinner>(R.id.Book)
@@ -75,27 +76,26 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         actionBar.setDisplayHomeAsUpEnabled(true)
 
         val sectionID = b!!.getString("1")
-        database.child(sectionID.toString()).child("entries").child(entryId).addValueEventListener(object :
+        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").child(entryId).addValueEventListener(object :
                 ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.getValue() != null) {
-                    val map = snapshot.getValue() as HashMap<String, String>
-                    title?.text = map.get("title") as String?
-                    text?.text = map.get("entry") as String?
+                if (snapshot.value != null) {
+                    val map = snapshot.value as HashMap<String, String>
+                    title?.text = map["title"] as String?
+                    text?.text = map["entry"] as String?
                 }
             }
-
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(applicationContext, "Es gab ein Problem", Toast.LENGTH_LONG).show()
-
             }
         })
 
-        val save: Button = findViewById(R.id.Save) as Button
+        val save: Button = findViewById<Button>(R.id.Save)
         save.setOnClickListener() {
 
-            database.child(sectionID.toString()).child("entries").child(entryId).child("entry").setValue(text?.text.toString())
-            database.child(sectionID.toString()).child("entries").child(entryId).child("title").setValue(title?.text.toString())
+            if (sectionID != null) {
+                fireBaseService.saveEntry(entryId,sectionID, text?.text.toString(), title?.text.toString())
+            }
             Toast.makeText(applicationContext, "Änderungen gespeichert.", Toast.LENGTH_LONG).show()
         }
 
@@ -129,11 +129,11 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
         val searchbutton :Button = findViewById(R.id.searchButton) as Button
         searchbutton.setOnClickListener(){
-            val bforSearch = Bundle()
-            bforSearch.putString("0", entryId)
-            bforSearch.putString("1", sectionID)
+            val bForSearch = Bundle()
+            bForSearch.putString("0", entryId)
+            bForSearch.putString("1", sectionID)
             val intent2 = Intent(this@EditEntryActivity, SearchActivity::class.java)
-            intent2.putExtras(b)
+            intent2.putExtras(bForSearch)
             startActivity(intent2)
         }
 
@@ -200,24 +200,20 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
                         val data = gson.fromJson(body, Package::class.java)
                         content = data.data.content
 
-
                         Log.d("URL:", data.data.content)
                         //01 !Wait for response instead of sleep
                     }
-
                 })
                 Thread.sleep(900)
                 text?.text = Html.fromHtml(content)
             }
         }
-
-
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         var ct = 1
         chapters = arrayOfNulls<String?>(booksAndChaptersPairList[position].second)  //There is a maximum of 150 Psalms (which is the book with the most chapters)
-        for (i in 0..booksAndChaptersPairList[position].second - 1) {
+        for (i in 0 until booksAndChaptersPairList[position].second) {
             chapters[i] = ct.toString()
             ct += 1
         }
@@ -228,7 +224,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     override fun onNothingSelected(parent: AdapterView<*>?) {
     }
 
-    fun updatespinner(arr: Array<String?>) {
+    private fun updatespinner(arr: Array<String?>) {
         val verseAdapter: ArrayAdapter<String> = ArrayAdapter<String>(applicationContext, R.layout.spinner_item, arr)
         this.verseSpinner?.adapter = verseAdapter
         val verseAdapter2: ArrayAdapter<String> = ArrayAdapter<String>(applicationContext, R.layout.spinner_item, arr)
@@ -271,23 +267,6 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         })
         Thread.sleep(900) //LOADINGANIMATION
         updatespinner(versesArray)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                if (data != null) {
-                    text?.text = text?.text.toString() + data.extras?.getString("2")
-                    Toast.makeText(applicationContext, "Es gab kein Problem", Toast.LENGTH_LONG).show()
-                }
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(applicationContext, "Es gab kein Problem", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        Toast.makeText(applicationContext, "Es gab kein Problem", Toast.LENGTH_LONG).show()
     }
 
 class Package(val data: Data)
