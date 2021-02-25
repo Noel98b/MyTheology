@@ -139,74 +139,23 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
         val add: Button = findViewById(R.id.add) as Button
         add.setOnClickListener() {
-            val client = OkHttpClient()
-            val credential = "c598fb63dc6793ca010d8bbe033cf15b"
-            val url = "https://api.scripture.api.bible/v1/bibles/95410db44ef800c1-01/verses/"
+
+            var selectedChapter = chapterSpinner!!.selectedItem.toString()
             val selectedBook = booksAndAbbrevationList[bookSpinner!!.selectedItemPosition].second
-            var selectedChapter = chapterSpinner!!.selectedItem
-            if (selectedChapter == null){
-                selectedChapter = "1"
+            val selectedPos1 = versesArray[verseSpinner!!.selectedItemPosition]?.toInt()
+            val selectedPos2 = versesArray[verseSpinner2!!.selectedItemPosition]?.toInt()
+            val selectedVerse = verseSpinner!!.selectedItem
+            val selectedVerse2 = verseSpinner2!!.selectedItem
+            val result = apiService.requestselectedBibleVerse(selectedBook, selectedChapter, selectedPos1, selectedPos2,selectedVerse,selectedVerse2)
+            when (result) {
+                "0" -> Toast.makeText(applicationContext, "Ein Fehler ist aufgetreten.", Toast.LENGTH_LONG).show()
+                "1" -> Toast.makeText(applicationContext, "Bitte gib einen gültigen Versbereich an.", Toast.LENGTH_LONG).show()
+                "2" -> Toast.makeText(applicationContext, "Es konnte keine Verbindung zum Bibelserver hergestellt werden.", Toast.LENGTH_LONG).show()
+                else -> {
+                    text?.text = text?.text.toString() + result
+                }
             }
-            var content: String? = ""
 
-            if( versesArray[verseSpinner!!.selectedItemPosition]?.toInt()!! == versesArray[verseSpinner2!!.selectedItemPosition]?.toInt()!!) {
-
-                val selectedVerse = verseSpinner!!.selectedItem
-
-                val request = Request.Builder()
-                        .url("$url$selectedBook.$selectedChapter.$selectedVerse")
-                        .addHeader("api-key", credential)
-                        .build()
-                Log.d("URL:", "$url$selectedBook.$selectedChapter.$selectedVerse")
-
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Toast.makeText(applicationContext, "No response", Toast.LENGTH_LONG).show()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        val body = response?.body?.string()
-                        val gson = GsonBuilder().create()
-                        val data = gson.fromJson(body, Package::class.java)
-                        content = data.data.content
-
-                        Log.d("URL:", data.data.content)
-                        //01 !Wait for response instead of sleep
-                    }
-
-                })
-                Thread.sleep(900)
-                text?.text = text?.text.toString() + Html.fromHtml(content)
-            }else if ( versesArray[verseSpinner!!.selectedItemPosition]?.toInt()!! > versesArray[verseSpinner2!!.selectedItemPosition]?.toInt()!!){
-                Toast.makeText(applicationContext, "Please enter a valid verse range ", Toast.LENGTH_LONG).show()
-            }else{
-                val selectedVerse1 = verseSpinner!!.selectedItem
-                val selectedVerse2 = verseSpinner2!!.selectedItem
-
-                val request = Request.Builder()
-                        .url("$url$selectedBook.$selectedChapter.$selectedVerse1-$selectedBook.$selectedChapter.$selectedVerse2")
-                        .addHeader("api-key", credential)
-                        .build()
-                Log.d("URL:", "$url$selectedBook.$selectedChapter.$selectedVerse1-$selectedChapter.$selectedVerse2")
-
-                client.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Toast.makeText(applicationContext, "No response", Toast.LENGTH_LONG).show()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        val body = response?.body?.string()
-                        val gson = GsonBuilder().create()
-                        val data = gson.fromJson(body, Package::class.java)
-                        content = data.data.content
-
-                        Log.d("URL:", data.data.content)
-                        //01 !Wait for response instead of sleep
-                    }
-                })
-                Thread.sleep(900)
-                text?.text = Html.fromHtml(content)
-            }
         }
     }
 
