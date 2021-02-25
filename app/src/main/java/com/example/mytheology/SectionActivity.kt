@@ -1,12 +1,19 @@
 package com.example.mytheology
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
+import android.util.Log
 import android.view.ActionMode
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.*
 import com.itextpdf.text.BaseColor
@@ -60,9 +67,11 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
         Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object:PermissionListener{
+                @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
                         pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename)
+                        printPDF()
                     }
                 }
 
@@ -120,6 +129,16 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun printPDF() {
+            val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
+            try {
+                val printAdapter = PdfDocumentAdapter(this@SectionActivity, Common.getAppPath(this@SectionActivity)+filename)
+                printManager.print("Document", printAdapter, PrintAttributes.Builder().build())
+            }catch (e: Exception){
+                Log.e("Printerror", ""+e.message)
+            }
+    }
 
 
     private fun addItemToList(snapshot: DataSnapshot){

@@ -1,8 +1,16 @@
 package com.example.mytheology
 
+import android.content.Context
+import android.os.Build
+import android.print.PrintManager
 import android.provider.FontRequest
+import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getSystemService
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.BaseFont
+import com.itextpdf.text.pdf.PdfDocument
 import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.text.pdf.draw.LineSeparator
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
@@ -26,18 +34,19 @@ class PdfServiceClass {
             document.addCreator("fname lname")
 
             val colorAccent = BaseColor(0,153,204,255)
-            val titleFontSize = 20.0f
-            val valueFontSize = 26.0f
+            val valueFontSize = 20.0f
+            val titleFontSize = 36.0f
+            val headingfontsize = 26.0f
 
-            val fontName = BaseFont.createFont("assets/fonts/eastman_regular.otf", "UTF-8", BaseFont.EMBEDDED)
+            val fontName = BaseFont.createFont("assets/fonts/Gravity-Regular.otf", "UTF-8", BaseFont.EMBEDDED)
 
-            var titleStyle = Font(fontName, 36.0f, Font.NORMAL,BaseColor.BLACK)
-            addNewItem(document, "Details", Element.ALIGN_CENTER, titleStyle)
+            var titleStyle = Font(fontName, titleFontSize, Font.NORMAL,BaseColor.BLACK)
+            addNewItem(document, "Title", Element.ALIGN_CENTER, titleStyle)
 
-            val headingStyle = Font(fontName, titleFontSize, Font.NORMAL, colorAccent)
-            addNewItem(document, "Nummer", Element.ALIGN_LEFT, headingStyle)
-            val valueStyle = Font(fontName, titleFontSize, Font.NORMAL, BaseColor.BLACK)
-            addNewItem(document, "123123", Element.ALIGN_LEFT, valueStyle)
+            val headingStyle = Font(fontName, headingfontsize, Font.NORMAL, colorAccent)
+            addNewItem(document, "Topic", Element.ALIGN_LEFT, headingStyle)
+            val valueStyle = Font(fontName, valueFontSize, Font.NORMAL, BaseColor.BLACK)
+            addNewItem(document, "Solomon", Element.ALIGN_LEFT, valueStyle)
 
             addLineSeperator(document)
 
@@ -46,16 +55,28 @@ class PdfServiceClass {
 
             addLineSeperator(document)
 
-            addNewItem(document, "Name", Element.ALIGN_LEFT, headingStyle)
-            addNewItem(document, "Otto", Element.ALIGN_LEFT, valueStyle)
+            addNewItem(document, "General Info", Element.ALIGN_LEFT, headingStyle)
+            addNewItem(document, "King", Element.ALIGN_LEFT, valueStyle)
 
             addLineSeperator(document)
             addNewItem(document, "More Details", Element.ALIGN_CENTER, titleStyle)
 
             addLineSeperator(document)
-            addNewItemWithLeftAndRight(document, "Pizza 25", "(0,0%)", titleStyle, valueStyle)
+            addNewItemWithLeftAndRight(document, "Birthdate", "1000 BC", valueStyle, valueStyle)
+            addNewItemWithLeftAndRight(document, "Wife", " Sulamit", valueStyle, valueStyle)
+
+            addLineSeperator(document)
+
+            addLineSpace(document)
+            addLineSpace(document)
+
+            addNewItemWithLeftAndRight(document, "Mission", " Build Temple", valueStyle, valueStyle)
+
+            document.close()
+
 
         }catch (e: Exception){
+            Log.e("failure", ""+e.message)
 
         }
     }
