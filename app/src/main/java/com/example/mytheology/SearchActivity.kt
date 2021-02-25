@@ -19,19 +19,19 @@ class SearchActivity : AppCompatActivity() {
 
 
     private var fireBaseService = FirebaseMapper()
-    private var apiService:ApiServiceClass = ApiServiceClass()
+    private var apiService: ApiServiceClass = ApiServiceClass()
     private var searchData: ApiServiceClass.SearchPackage? = null
-    private var b:Bundle?=null
+    private var b: Bundle? = null
     var searchTerm: TextView? = null
     var resultBox: LinearLayout? = null
     val lparams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
     )
-    var offset:Int = 0
-    lateinit var entryID:String
-    lateinit var sectionID:String
-    lateinit var officialText:String
-    lateinit var officialTitle:String
+    var offset: Int = 0
+    lateinit var entryID: String
+    lateinit var sectionID: String
+    lateinit var officialText: String
+    lateinit var officialTitle: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +45,7 @@ class SearchActivity : AppCompatActivity() {
 
         val actionBar = supportActionBar
         actionBar!!.title = "Bibel Suche"
-        actionBar.setDisplayHomeAsUpEnabled(false)
+        actionBar.setDisplayHomeAsUpEnabled(true)
 
         val searchButton: ImageButton = findViewById<ImageButton>(R.id.searchButton)
         searchButton.setOnClickListener() {
@@ -65,9 +65,10 @@ class SearchActivity : AppCompatActivity() {
                 if (snapshot.getValue() != null) {
                     val map = snapshot.getValue() as HashMap<String, String>
                     officialText = (map["entry"]).toString()
-                    officialTitle  = (map["title"]).toString()
+                    officialTitle = (map["title"]).toString()
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
             }
         })
@@ -75,9 +76,9 @@ class SearchActivity : AppCompatActivity() {
 
     fun TextView.setTextColor(color: Long) = this.setTextColor(color.toInt())
 
-    fun searchTheAPI(){
+    fun searchTheAPI() {
 
-        if(offset==0){
+        if (offset == 0) {
             resultBox?.removeAllViews()
         }
         val client = OkHttpClient()
@@ -85,9 +86,9 @@ class SearchActivity : AppCompatActivity() {
         val url = "https://api.scripture.api.bible/v1/bibles/95410db44ef800c1-01/search?query="
         val term = searchTerm?.text
         val request = Request.Builder()
-            .url("$url$term&offset=$offset")
-            .addHeader("api-key", credential)
-            .build()
+                .url("$url$term&offset=$offset")
+                .addHeader("api-key", credential)
+                .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -104,21 +105,21 @@ class SearchActivity : AppCompatActivity() {
         })
         Thread.sleep(900) //LOADINGANIMATION
 
-        if(offset==0) {
+        if (offset == 0) {
             Toast.makeText(
-                applicationContext,
-                searchData?.data?.total + " Ergebnisse insgesamt",
-                Toast.LENGTH_LONG
+                    applicationContext,
+                    searchData?.data?.total + " Ergebnisse insgesamt",
+                    Toast.LENGTH_LONG
             ).show()
-        }else{
+        } else {
             Toast.makeText(
-                applicationContext,
-                "10 weitere Ergebnisse geladen.",
-                Toast.LENGTH_LONG
+                    applicationContext,
+                    "10 weitere Ergebnisse geladen.",
+                    Toast.LENGTH_LONG
             ).show()
         }
-        if (searchData!=null){
-            for (item in searchData!!.data.verses){
+        if (searchData != null) {
+            for (item in searchData!!.data.verses) {
                 val gr = RadioGroup(this)
                 val addBtn = Button(this)
                 val tv = TextView(this)
@@ -133,7 +134,7 @@ class SearchActivity : AppCompatActivity() {
                 gr.addView(tv)
                 gr.addView(addBtn)
                 resultBox?.addView(gr)
-                addBtn.setOnClickListener(){
+                addBtn.setOnClickListener() {
                     val newtext = officialText + "\n" + tv.text
                     fireBaseService.saveEntry(entryID, sectionID, newtext, officialTitle)
                     Toast.makeText(
@@ -153,5 +154,9 @@ class SearchActivity : AppCompatActivity() {
                 */
             }
         }
+    }
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

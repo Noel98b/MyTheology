@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
+import android.view.ActionMode
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -17,14 +18,14 @@ import com.example.mytheology.ApiServiceClass
 
 class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
-    lateinit var fireBaseService:FirebaseMapper
+    lateinit var fireBaseService: FirebaseMapper
     lateinit var adapter: EntryAdapter
     lateinit var listViewItem: ListView
     lateinit var entryId: String
     lateinit var verses: String
     private var versesArray = arrayOf<String?>()
     private var chapters = arrayOf<String?>()
-    lateinit var apiService:ApiServiceClass
+    lateinit var apiService: ApiServiceClass
 
     //Data which can be initialized and stored locally to inhibit data exchange with api
     var booksAndChaptersPairList = arrayListOf(Pair("1.Mose", 50), Pair("2.Mose", 40), Pair("3.Mose", 27), Pair("4.Mose", 36), Pair("5.Mose", 34), Pair("Josua", 24), Pair("Richter", 21), Pair("Ruth", 4),
@@ -51,6 +52,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     private val allBooks = arrayOfNulls<String?>(66) //The Bible consists of 66 Books
     private lateinit var title: TextView
     private lateinit var text: TextView
+    private lateinit var b:Bundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,11 +67,11 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         verseSpinner = findViewById<Spinner>(R.id.Verse)
         verseSpinner2 = findViewById<Spinner>(R.id.Verse2)
 
-         title = findViewById<TextView>(R.id.EditTitle)
-         text= findViewById<TextView>(R.id.EditText)
+        title = findViewById<TextView>(R.id.EditTitle)
+        text = findViewById<TextView>(R.id.EditText)
 
         //unpack bundle and create actionbar
-        val b = intent.extras
+        b = intent.extras!!
         entryId = b!!.getString("0").toString()
         val actionBar = supportActionBar
         actionBar!!.title = "Eintrag bearbeiten"
@@ -85,6 +87,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
                     text?.text = map["entry"] as String?
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(applicationContext, "Es gab ein Problem", Toast.LENGTH_LONG).show()
             }
@@ -94,7 +97,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         save.setOnClickListener() {
 
             if (sectionID != null) {
-                fireBaseService.saveEntry(entryId,sectionID, text?.text.toString(), title?.text.toString())
+                fireBaseService.saveEntry(entryId, sectionID, text?.text.toString(), title?.text.toString())
             }
             Toast.makeText(applicationContext, "Änderungen gespeichert.", Toast.LENGTH_LONG).show()
         }
@@ -113,6 +116,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 getVerses(position)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
@@ -121,14 +125,19 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 verseSpinner2?.setSelection(position)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
 
         getVerses(null)
 
-        val searchbutton :Button = findViewById(R.id.searchButton) as Button
-        searchbutton.setOnClickListener(){
+        val searchbutton: Button = findViewById(R.id.searchButton) as Button
+        searchbutton.setOnClickListener() {
+            //save the entry before navigating to search view
+            if (sectionID != null) {
+                fireBaseService.saveEntry(entryId, sectionID, text?.text.toString(), title?.text.toString())
+            }
             val bForSearch = Bundle()
             bForSearch.putString("0", entryId)
             bForSearch.putString("1", sectionID)
@@ -140,13 +149,15 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val add: Button = findViewById(R.id.add) as Button
         add.setOnClickListener() {
             var selectedChapter = chapterSpinner!!.selectedItem.toString()
-            if (selectedChapter==null){selectedChapter="1"}
+            if (selectedChapter == null) {
+                selectedChapter = "1"
+            }
             val selectedBook = booksAndAbbrevationList[bookSpinner!!.selectedItemPosition].second
             val selectedPos1 = versesArray[verseSpinner!!.selectedItemPosition]?.toInt()
             val selectedPos2 = versesArray[verseSpinner2!!.selectedItemPosition]?.toInt()
             val selectedVerse = verseSpinner!!.selectedItem
             val selectedVerse2 = verseSpinner2!!.selectedItem
-            val result = apiService.requestselectedBibleVerse(selectedBook, selectedChapter, selectedPos1, selectedPos2,selectedVerse,selectedVerse2)
+            val result = apiService.requestselectedBibleVerse(selectedBook, selectedChapter, selectedPos1, selectedPos2, selectedVerse, selectedVerse2)
             when (result) {
                 "0" -> Toast.makeText(applicationContext, "Ein Fehler ist aufgetreten.", Toast.LENGTH_LONG).show()
                 "1" -> Toast.makeText(applicationContext, "Bitte gib einen gültigen Versbereich an.", Toast.LENGTH_LONG).show()
@@ -180,27 +191,34 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         this.verseSpinner2?.adapter = verseAdapter2
     }
 
-    fun getVerses(position: Int?){
+    fun getVerses(position: Int?) {
         var selectedChapter = chapterSpinner!!.selectedItem
-        if (selectedChapter==null){selectedChapter="1"}
+        if (selectedChapter == null) {
+            selectedChapter = "1"
+        }
         val selectedBook = booksAndAbbrevationList[bookSpinner!!.selectedItemPosition].second
-        versesArray = apiService.getVersesCount(position,selectedBook,selectedChapter.toString())
+        versesArray = apiService.getVersesCount(position, selectedBook, selectedChapter.toString())
         updatespinner(versesArray)
     }
 
-class Package(val data: Data)
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
 
-class VersePackage(val data:VerseData)
+    class Package(val data: Data)
 
-class SearchPackage(val data: SearchData)
+    class VersePackage(val data: VerseData)
 
-class Data(val id: String, val bibleId: String, val number: String, val bookId: String, val reference: String, val content: String)
+    class SearchPackage(val data: SearchData)
 
-class VerseData(val verseCount: String)
+    class Data(val id: String, val bibleId: String, val number: String, val bookId: String, val reference: String, val content: String)
 
-class SearchData(val query:String, val total:String, val verseCount: String,  val verses:ArrayList<Result> )
+    class VerseData(val verseCount: String)
 
-class Result(val reference: String, val text:String)
+    class SearchData(val query: String, val total: String, val verseCount: String, val verses: ArrayList<Result>)
+
+    class Result(val reference: String, val text: String)
 }
 
 
