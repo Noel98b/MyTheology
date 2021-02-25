@@ -11,6 +11,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.*
+import com.karumi.dexter.Dexter
+import java.util.jar.Manifest
 
 
 class MainActivity : AppCompatActivity(), UpdateAndDelete {

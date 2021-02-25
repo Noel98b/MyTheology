@@ -20,11 +20,11 @@ class SearchActivity : AppCompatActivity() {
 
     private var fireBaseService = FirebaseMapper()
     private var apiService: ApiServiceClass = ApiServiceClass()
-    private var searchData: ApiServiceClass.SearchPackage? = null
+    private lateinit var searchData: ApiServiceClass.SearchPackage
     private var b: Bundle? = null
-    var searchTerm: TextView? = null
-    var resultBox: LinearLayout? = null
-    val lparams = LinearLayout.LayoutParams(
+    private lateinit var searchTerm: TextView
+    private lateinit var resultBox: LinearLayout
+    private val lparams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
     )
     var offset: Int = 0
