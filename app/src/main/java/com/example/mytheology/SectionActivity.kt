@@ -74,11 +74,13 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
-                        dataforPDF.sectionTitle = ""
-                        dataforPDF.entries = arrayListOf()
-                        initEntry()
-                        pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename, dataforPDF)
-                        printPDF()
+                        if( !dataforPDF.entries.isNullOrEmpty()) {
+
+                            pdfService.createPDFFile(Common.getAppPath(this@SectionActivity) + filename, dataforPDF)
+                            printPDF()
+                        }else{
+                            Toast.makeText(applicationContext, "Keine Einträge vorhanden", Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
 
@@ -179,6 +181,18 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
     override fun onItemDelete( entryID: String) {
         fireBaseService.onEntryDelete(entryID,sectionID.toString())
         adapter.notifyDataSetChanged()
+        //delete from object
+        val index:Int? = findIndex(dataforPDF.entries, entryID)
+        if (index != null) {
+            dataforPDF.entries?.removeAt(index)
+        }
+    }
+
+    fun findIndex(arr: ArrayList<Entry>?, item: String): Int? {
+
+            return (arr!!.indices)
+                    .firstOrNull { i: Int -> item == arr?.get(i)?.entryID }
+
     }
 
     override fun onSectionClick(entryID: String) {

@@ -22,7 +22,6 @@ import java.util.*
 class PdfServiceClass {
 
     fun createPDFFile(path: String, data:MainModel) {
-        if(data.sectionTitle != "" && !data.entries.isNullOrEmpty()){
 
         if(File(path).exists())
             File(path).delete()
@@ -46,13 +45,14 @@ class PdfServiceClass {
             addNewItem(document, data.sectionTitle.toString(), Element.ALIGN_CENTER, titleStyle)
             val headingStyle = Font(fontName, headingfontsize, Font.NORMAL, colorAccent)
             val valueStyle = Font(fontName, valueFontSize, Font.NORMAL, BaseColor.BLACK)
-            addLineSpace(document)
-            addLineSeperator(document)
 
-                     var ct = 1
                      for(i in 0 until data.entries?.size!!-1){
 
+
                          if ( (i % 2 == 0) ){
+                             addLineSpace(document)
+                             addLineSeperator(document)
+                             addLineSpace(document)
                              val chunkTitleLeft =  Chunk(data.entries!![i].title, headingStyle)
                              val chunkTextLeft =  Chunk(data.entries!![i].entry, valueStyle)
                              val chunkTitleRight =  Chunk(data.entries!![i+1].title, headingStyle)
@@ -70,16 +70,13 @@ class PdfServiceClass {
                              pT.add(Chunk(VerticalPositionMark()))
                              pT.add(chunkTextRight)
                              document.add(pT)
-
-                             addLineSpace(document)
-                             addLineSeperator(document)
-
-                             ct = ct +1
-
                          }
                      }
 
             if (data.entries?.size!! % 2 != 0){
+                addLineSpace(document)
+                addLineSeperator(document)
+                addLineSpace(document)
                 val chunkTitleLeft =  Chunk(data.entries!!.last().title, headingStyle)
                 val chunkTextLeft =  Chunk(data.entries!!.last().title, valueStyle)
 
@@ -87,11 +84,6 @@ class PdfServiceClass {
                 p.add("\n")
                 p.add(chunkTextLeft)
                 document.add(p)
-
-                addLineSpace(document)
-                addLineSeperator(document)
-                addLineSpace(document)
-                ct = ct +1
             }
 
             document.close()
@@ -101,7 +93,7 @@ class PdfServiceClass {
             Log.e("failure", ""+e.message)
 
         }
-        }
+
     }
 
     @Throws(DocumentException::class)
