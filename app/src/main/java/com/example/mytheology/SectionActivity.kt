@@ -67,12 +67,16 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         filename = sectionID
         dataforPDF = MainModel()
         dataforPDF.sectionTitle = b!!.getString("1").toString()
+        dataforPDF.entries = arrayListOf()
 
         Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object:PermissionListener{
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
+                        dataforPDF.sectionTitle = ""
+                        dataforPDF.entries = arrayListOf()
+                        initEntry()
                         pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename, dataforPDF)
                         printPDF()
                     }
@@ -97,15 +101,10 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         List = mutableListOf<Entry>()
         adapter = EntryAdapter(this, List!!)
         listViewItem!!.adapter = adapter
-        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                List!!.clear()
-                addItemToList(snapshot)
-            }
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(applicationContext, "Es gab ein Problem", Toast.LENGTH_LONG).show()
-            }
-        })
+
+        initEntry()
+
+
 
         s_fab.setOnClickListener{ view ->
 
@@ -131,6 +130,18 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
             }
             alertDialog.show()
         }
+    }
+
+    private fun initEntry(){
+        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                List!!.clear()
+                addItemToList(snapshot)
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(applicationContext, "Es gab ein Problem", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)

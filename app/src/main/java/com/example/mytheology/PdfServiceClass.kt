@@ -22,6 +22,8 @@ import java.util.*
 class PdfServiceClass {
 
     fun createPDFFile(path: String, data:MainModel) {
+        if(data.sectionTitle != "" && !data.entries.isNullOrEmpty()){
+
         if(File(path).exists())
             File(path).delete()
         try{
@@ -34,43 +36,63 @@ class PdfServiceClass {
             document.addCreator("fname lname")
 
             val colorAccent = BaseColor(0,153,204,255)
-            val valueFontSize = 20.0f
+            val valueFontSize = 12.0f
             val titleFontSize = 36.0f
-            val headingfontsize = 26.0f
+            val headingfontsize = 16.0f
 
             val fontName = BaseFont.createFont("assets/fonts/Gravity-Regular.otf", "UTF-8", BaseFont.EMBEDDED)
 
             var titleStyle = Font(fontName, titleFontSize, Font.NORMAL,BaseColor.BLACK)
             addNewItem(document, data.sectionTitle.toString(), Element.ALIGN_CENTER, titleStyle)
-
             val headingStyle = Font(fontName, headingfontsize, Font.NORMAL, colorAccent)
-            addNewItem(document, "Topic", Element.ALIGN_LEFT, headingStyle)
             val valueStyle = Font(fontName, valueFontSize, Font.NORMAL, BaseColor.BLACK)
-            addNewItem(document, "Solomon", Element.ALIGN_LEFT, valueStyle)
-
-            addLineSeperator(document)
-
-            addNewItem(document, "Date", Element.ALIGN_LEFT, headingStyle)
-            addNewItem(document, "25.02.2021", Element.ALIGN_LEFT, valueStyle)
-
-            addLineSeperator(document)
-
-            addNewItem(document, "General Info", Element.ALIGN_LEFT, headingStyle)
-            addNewItem(document, "King", Element.ALIGN_LEFT, valueStyle)
-
-            addLineSeperator(document)
-            addNewItem(document, "More Details", Element.ALIGN_CENTER, titleStyle)
-
-            addLineSeperator(document)
-            addNewItemWithLeftAndRight(document, "Birthdate", "1000 BC", valueStyle, valueStyle)
-            addNewItemWithLeftAndRight(document, "Wife", " Sulamit", valueStyle, valueStyle)
-
-            addLineSeperator(document)
-
             addLineSpace(document)
-            addLineSpace(document)
+            addLineSeperator(document)
 
-            addNewItemWithLeftAndRight(document, "Mission", " Build Temple", valueStyle, valueStyle)
+                     var ct = 1
+                     for(i in 0 until data.entries?.size!!-1){
+
+                         if ( (i % 2 == 0) ){
+                             val chunkTitleLeft =  Chunk(data.entries!![i].title, headingStyle)
+                             val chunkTextLeft =  Chunk(data.entries!![i].entry, valueStyle)
+                             val chunkTitleRight =  Chunk(data.entries!![i+1].title, headingStyle)
+                             val chunkTextRight =  Chunk(data.entries!![i+1].entry, valueStyle)
+
+                             val pH = Paragraph(chunkTitleLeft)
+                             pH.add(Chunk(VerticalPositionMark()))
+                             pH.add(chunkTitleRight)
+                             document.add(pH)
+
+                             addLineSpace(document)
+                             //addLineSeperator(document)
+
+                             val pT = Paragraph(chunkTextLeft)
+                             pT.add(Chunk(VerticalPositionMark()))
+                             pT.add(chunkTextRight)
+                             document.add(pT)
+
+                             addLineSpace(document)
+                             addLineSeperator(document)
+
+                             ct = ct +1
+
+                         }
+                     }
+
+            if (data.entries?.size!! % 2 != 0){
+                val chunkTitleLeft =  Chunk(data.entries!!.last().title, headingStyle)
+                val chunkTextLeft =  Chunk(data.entries!!.last().title, valueStyle)
+
+                val p = Paragraph(chunkTitleLeft)
+                p.add("\n")
+                p.add(chunkTextLeft)
+                document.add(p)
+
+                addLineSpace(document)
+                addLineSeperator(document)
+                addLineSpace(document)
+                ct = ct +1
+            }
 
             document.close()
 
@@ -78,6 +100,7 @@ class PdfServiceClass {
         }catch (e: Exception){
             Log.e("failure", ""+e.message)
 
+        }
         }
     }
 
