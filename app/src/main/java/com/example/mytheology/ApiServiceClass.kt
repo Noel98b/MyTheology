@@ -40,9 +40,8 @@ class ApiServiceClass {
 
     }
 
-    fun requestselectedBibleVerse(selectedBook:String, selectedChapter:String, spinner1SelectedPos:Int?, spinner2SelectedPos:Int?, selectedVerse:Any, selectedVerse2:Any):String
-    {
-        var result:String = "0"
+    fun requestselectedBibleVerse(selectedBook: String, selectedChapter: String, spinner1SelectedPos: Int?, spinner2SelectedPos: Int?, selectedVerse: Any, selectedVerse2: Any): String {
+        var result: String = "0"
         val url = "https://api.scripture.api.bible/v1/bibles/95410db44ef800c1-01/verses/"
         val selectedBook = selectedBook
         var selectedChapter = selectedChapter
@@ -53,7 +52,7 @@ class ApiServiceClass {
 
         if (spinner1SelectedPos!! == spinner2SelectedPos!!) {
 
-           val request = Request.Builder()
+            val request = Request.Builder()
                     .url("$url$selectedBook.$selectedChapter.$selectedVerse")
                     .addHeader("api-key", credential)
                     .build()
@@ -76,7 +75,7 @@ class ApiServiceClass {
 
             })
             Thread.sleep(900)
-           result = Html.fromHtml(content).toString()
+            result = Html.fromHtml(content).toString()
         } else if (spinner1SelectedPos!! > spinner2SelectedPos!!) {
             result = "1" //kein gültiger Versbereich
         } else {
@@ -105,11 +104,10 @@ class ApiServiceClass {
             Thread.sleep(900)
             result = Html.fromHtml(content).toString()
         }
-
         return result
     }
 
-    fun getVersesCount(position: Int?, selectedBook:String,selectedChapter:String): Array<String?> {
+    fun getVersesCount(position: Int?, selectedBook: String, selectedChapter: String): Array<String?> {
         var result = arrayOf<String?>()
         val url = "https://api.scripture.api.bible/v1/bibles/95410db44ef800c1-01/chapters/"
         val request = Request.Builder()
@@ -141,10 +139,9 @@ class ApiServiceClass {
     }
 
 
-
     class Package(val data: Data)
 
-    class VersePackage(val data:VerseData)
+    class VersePackage(val data: VerseData)
 
     class SearchPackage(val data: SearchData)
 
@@ -152,7 +149,7 @@ class ApiServiceClass {
 
     class VerseData(val verseCount: String)
 
-    class SearchData(val query:String, val total:String, val verseCount: String,  val verses:ArrayList<Result> )
+    class SearchData(val query: String, val total: String, val verseCount: String, val verses: ArrayList<Result>)
 
-    class Result(val reference: String, val text:String)
+    class Result(val reference: String, val text: String)
 }

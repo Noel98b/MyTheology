@@ -2,6 +2,7 @@ package com.example.mytheology
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ActionMode
 import android.view.View
 import android.widget.EditText
 import android.widget.ListView
@@ -113,5 +114,7 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         intent.putExtras(b)
         startActivity(intent)
     }
+
+
 
 }
