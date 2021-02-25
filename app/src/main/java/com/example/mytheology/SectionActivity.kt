@@ -43,6 +43,7 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
     private lateinit var createPdfButton: Button
     private lateinit var filename:String
     private lateinit var pdfService: PdfServiceClass
+    private lateinit var dataforPDF:MainModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,18 +65,21 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
         createPdfButton = findViewById<Button>(R.id.createPDF)
         filename = sectionID
+        dataforPDF = MainModel()
+        dataforPDF.sectionTitle = b!!.getString("1").toString()
 
         Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object:PermissionListener{
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
-                        pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename)
+                        pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename, dataforPDF)
                         printPDF()
                     }
                 }
 
                 override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                    createPdfButton.isEnabled = false
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
@@ -148,10 +152,10 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 val IndexedValue = items.next()
                 val map = IndexedValue.getValue() as HashMap<String, Any>
                 var entry = Entry()
-                val Itemdata = MainModel.createList()
                 entry.entryID = IndexedValue.key
                 entry.title = map.get("title") as String?
                 entry.entry = map.get("entry") as String?
+                dataforPDF.entries?.add(entry)
                 List!!.add(entry)
                 if (!List!!.isEmpty()){
                     emptyMessage?.text  = ""

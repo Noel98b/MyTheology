@@ -21,7 +21,7 @@ import java.util.*
 
 class PdfServiceClass {
 
-    fun createPDFFile(path: String) {
+    fun createPDFFile(path: String, data:MainModel) {
         if(File(path).exists())
             File(path).delete()
         try{
@@ -41,7 +41,7 @@ class PdfServiceClass {
             val fontName = BaseFont.createFont("assets/fonts/Gravity-Regular.otf", "UTF-8", BaseFont.EMBEDDED)
 
             var titleStyle = Font(fontName, titleFontSize, Font.NORMAL,BaseColor.BLACK)
-            addNewItem(document, "Title", Element.ALIGN_CENTER, titleStyle)
+            addNewItem(document, data.sectionTitle.toString(), Element.ALIGN_CENTER, titleStyle)
 
             val headingStyle = Font(fontName, headingfontsize, Font.NORMAL, colorAccent)
             addNewItem(document, "Topic", Element.ALIGN_LEFT, headingStyle)
