@@ -12,6 +12,8 @@ tools:context=".SectionActivity">
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
+
+
 </ListView>
 
 <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,5 +33,17 @@ tools:context=".SectionActivity">
         android:textSize="18sp"
         app:layout_anchor="@+id/entries_list"
         app:layout_anchorGravity="center" />
+
+    <Button
+        android:id="@+id/createPDF"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="330dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/roundedbutton"
+        android:padding="0dp"
+        android:text="PDF"
+        app:layout_anchor="@+id/entries_list"
+        app:layout_anchorGravity="bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

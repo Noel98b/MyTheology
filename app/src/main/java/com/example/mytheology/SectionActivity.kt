@@ -1,26 +1,48 @@
 package com.example.mytheology
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.print.PrintAttributes
+import android.print.PrintManager
+import android.util.Log
 import android.view.ActionMode
 import android.view.View
-import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.database.*
+import com.itextpdf.text.BaseColor
+import com.itextpdf.text.Document
+import com.itextpdf.text.PageSize
+import com.itextpdf.text.pdf.BaseFont
+import com.itextpdf.text.pdf.PdfWriter
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionDeniedResponse
+import com.karumi.dexter.listener.PermissionGrantedResponse
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.single.PermissionListener
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
+import java.util.jar.Manifest
 
 class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
     //Firebase
     lateinit var fireBaseService:FirebaseMapper
     var List:MutableList<Entry>?=null
     lateinit var adapter: EntryAdapter
-    private var listViewItem : ListView?=null
-    private var sectionID : String? = ""
-    private var emptyMessage:TextView? = null
+    private lateinit var listViewItem : ListView
+    private lateinit var sectionID : String
+    private lateinit var emptyMessage:TextView
+    private lateinit var createPdfButton: Button
+    private lateinit var filename:String
+    private lateinit var pdfService: PdfServiceClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,17 +52,43 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         emptyMessage = findViewById(R.id.Emptymessage)
 
         fireBaseService = FirebaseMapper()
+        pdfService = PdfServiceClass()
 
         //unpack bundle and create actionbar
         val b = intent.extras
-        sectionID = b!!.getString("0")
+        sectionID = b!!.getString("0").toString()
 
         val actionBar = supportActionBar
             actionBar!!.title = b!!.getString("1")
             actionBar.setDisplayHomeAsUpEnabled(true)
 
+        createPdfButton = findViewById<Button>(R.id.createPDF)
+        filename = sectionID
+
+        Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            .withListener(object:PermissionListener{
+                @RequiresApi(Build.VERSION_CODES.KITKAT)
+                override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                    createPdfButton.setOnClickListener(){
+                        pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename)
+                        printPDF()
+                    }
+                }
+
+                override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    permission: PermissionRequest?,
+                    token: PermissionToken?
+                ) {
+
+                }
+
+            }).check()
 
         val s_fab = findViewById<View>(R.id.s_fab) as FloatingActionButton
+
 
         List = mutableListOf<Entry>()
         adapter = EntryAdapter(this, List!!)
@@ -80,6 +128,18 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
             alertDialog.show()
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun printPDF() {
+            val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
+            try {
+                val printAdapter = PdfDocumentAdapter(this@SectionActivity, Common.getAppPath(this@SectionActivity)+filename)
+                printManager.print("Document", printAdapter, PrintAttributes.Builder().build())
+            }catch (e: Exception){
+                Log.e("Printerror", ""+e.message)
+            }
+    }
+
 
     private fun addItemToList(snapshot: DataSnapshot){
 
