@@ -25,9 +25,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         fireBaseService = FirebaseMapper()
-
 
         //Main Elements
         listViewItem = findViewById(R.id.topics_list)
@@ -45,7 +43,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
                 sectionListElement.itemDataText= textEditText.text.toString()
                 sectionListElement.done = false
                 sectionListElement.entries = arrayListOf<Entry>()
-                val newItemData = fireBaseService.newSection(sectionListElement)
+                fireBaseService.newSection(sectionListElement)
                 Toast.makeText(
                         this,
                         "Neues Thema " + sectionListElement.itemDataText + " wurde erstellt",
@@ -94,14 +92,8 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         adapter.notifyDataSetChanged()
     }
 
-    override fun modifyItem(itemUID: String, isDone: Boolean) {
-        val itemReference = fireBaseService.database.child("section").child(itemUID)
-        itemReference.child("done").setValue(isDone)
-    }
-
-    override fun onItemDelete(itemUID: String) {
-        val itemReference = fireBaseService.database.child("section").child(itemUID)
-        itemReference.removeValue()
+  override fun onItemDelete(itemUID: String) {
+        fireBaseService.onItemDelete(itemUID)
         adapter.notifyDataSetChanged()
     }
 
@@ -114,33 +106,4 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         intent.putExtras(b)
         startActivity(intent)
     }
-
-
-    /*
-    fun buildMainFrame(){
-        var contentData : JSONArray? = null
-        var jsonPlain : String? = null
-        try{
-            //-------Build Mainframe of Application----------
-
-            //fetch Data and transform into jsonarray
-            val inputStream:InputStream = assets.open("Data.json")
-            jsonPlain = inputStream.bufferedReader().use{it.readText()}
-            contentData = JSONArray(jsonPlain)
-
-
-
-
-            for (i in 0 until contentData.length()) {
-                val obj = contentData.getJSONObject(0)
-                val name = obj.optString("Name")
-                //this.findViewById<TextView>(R.id.text1).text = jsonPlain
-            }
-
-        }catch (e: IOException) {
-
-        }
-    }
-*/
-
 }
