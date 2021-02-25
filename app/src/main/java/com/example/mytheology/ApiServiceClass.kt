@@ -109,7 +109,36 @@ class ApiServiceClass {
         return result
     }
 
+    fun getVersesCount(position: Int?, selectedBook:String,selectedChapter:String): Array<String?> {
+        var result = arrayOf<String?>()
+        val url = "https://api.scripture.api.bible/v1/bibles/95410db44ef800c1-01/chapters/"
+        val request = Request.Builder()
+                .url("$url$selectedBook.$selectedChapter")
+                .addHeader("api-key", credential)
+                .build()
 
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                result = emptyArray()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.d("response", "response");
+                val body = response?.body?.string()
+                val gson = GsonBuilder().create()
+                val verseData = gson.fromJson(body, EditEntryActivity.VersePackage::class.java)
+                val content = verseData.data.verseCount
+                result = arrayOfNulls<String?>(content.toInt())
+                var ct = 1
+                for (i in 0 until content.toInt()) {
+                    result[i] = ct.toString()
+                    ct = ct + 1
+                }
+            }
+        })
+        Thread.sleep(900) //LOADINGANIMATION
+        return result
+    }
 
 
 

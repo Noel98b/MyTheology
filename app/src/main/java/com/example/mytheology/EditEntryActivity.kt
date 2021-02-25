@@ -139,8 +139,8 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
 
         val add: Button = findViewById(R.id.add) as Button
         add.setOnClickListener() {
-
             var selectedChapter = chapterSpinner!!.selectedItem.toString()
+            if (selectedChapter==null){selectedChapter="1"}
             val selectedBook = booksAndAbbrevationList[bookSpinner!!.selectedItemPosition].second
             val selectedPos1 = versesArray[verseSpinner!!.selectedItemPosition]?.toInt()
             val selectedPos2 = versesArray[verseSpinner2!!.selectedItemPosition]?.toInt()
@@ -181,40 +181,10 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
     }
 
     fun getVerses(position: Int?){
-        val client = OkHttpClient()
-        val credential = "c598fb63dc6793ca010d8bbe033cf15b"
-        val url = "https://api.scripture.api.bible/v1/bibles/95410db44ef800c1-01/chapters/"
+        var selectedChapter = chapterSpinner!!.selectedItem
+        if (selectedChapter==null){selectedChapter="1"}
         val selectedBook = booksAndAbbrevationList[bookSpinner!!.selectedItemPosition].second
-        var selectedChapter = position?.plus(1).toString()
-        if (chapterSpinner?.selectedItem == null){
-             selectedChapter = "1"
-        }
-        val request = Request.Builder()
-                .url("$url$selectedBook.$selectedChapter")
-                .addHeader("api-key", credential)
-                .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Toast.makeText(applicationContext, "No response", Toast.LENGTH_LONG).show()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-
-                Log.d("response", "response");
-                val body = response?.body?.string()
-                val gson = GsonBuilder().create()
-                val verseData = gson.fromJson(body, VersePackage::class.java)
-                val content = verseData.data.verseCount
-                versesArray = arrayOfNulls<String?>(content.toInt())
-                var ct = 1
-                for (i in 0 until content.toInt()) {
-                    versesArray[i] = ct.toString()
-                    ct = ct + 1
-                }
-            }
-        })
-        Thread.sleep(900) //LOADINGANIMATION
+        versesArray = apiService.getVersesCount(position,selectedBook,selectedChapter.toString())
         updatespinner(versesArray)
     }
 
