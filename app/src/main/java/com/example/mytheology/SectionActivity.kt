@@ -68,13 +68,15 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         dataforPDF = MainModel()
         dataforPDF.sectionTitle = b!!.getString("1").toString()
         dataforPDF.entries = arrayListOf()
+        initEntry()
 
         Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object:PermissionListener{
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
-                        if( !dataforPDF.entries.isNullOrEmpty()) {
+
+                        if( dataforPDF.entries!!.size>0) {
 
                             pdfService.createPDFFile(Common.getAppPath(this@SectionActivity) + filename, dataforPDF)
                             printPDF()
@@ -103,10 +105,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         List = mutableListOf<Entry>()
         adapter = EntryAdapter(this, List!!)
         listViewItem!!.adapter = adapter
-
-        initEntry()
-
-
 
         s_fab.setOnClickListener{ view ->
 
@@ -182,17 +180,19 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         fireBaseService.onEntryDelete(entryID,sectionID.toString())
         adapter.notifyDataSetChanged()
         //delete from object
+        val size1 = dataforPDF.entries?.size
         val index:Int? = findIndex(dataforPDF.entries, entryID)
         if (index != null) {
             dataforPDF.entries?.removeAt(index)
         }
+        val size2 = dataforPDF.entries?.size
+
+        Toast.makeText(applicationContext, size1.toString()+" " + size2.toString(), Toast.LENGTH_LONG).show()
     }
 
     fun findIndex(arr: ArrayList<Entry>?, item: String): Int? {
-
             return (arr!!.indices)
                     .firstOrNull { i: Int -> item == arr?.get(i)?.entryID }
-
     }
 
     override fun onSectionClick(entryID: String) {
