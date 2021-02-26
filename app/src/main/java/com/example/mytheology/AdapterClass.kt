@@ -49,6 +49,8 @@ class AdapterClass(context: Context, List: MutableList<MainModel>): BaseAdapter(
 
     }
 
+
+
     private class ListViewHolder(row: View){
         val textLabel:TextView=row!!.findViewById(R.id.ItemText) as TextView
         val isDeleted:ImageButton = row!!.findViewById(R.id.close) as ImageButton
