@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.GsonBuilder
 import okhttp3.*
@@ -46,6 +47,9 @@ class SearchActivity : AppCompatActivity() {
         val actionBar = supportActionBar
         actionBar!!.title = "Bibel Suche"
         actionBar.setDisplayHomeAsUpEnabled(true)
+
+        fireBaseService.currentUser = b!!.getString("user_id")
+        fireBaseService.sectionReference = FirebaseDatabase.getInstance().getReference(fireBaseService.currentUser!!)
 
         val searchButton: ImageButton = findViewById<ImageButton>(R.id.searchButton)
         searchButton.setOnClickListener() {

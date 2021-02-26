@@ -53,7 +53,7 @@ class FirebaseMapper {
     }
 
     fun onItemDelete(itemUID:String){
-        val itemReference = database.child("section").child(itemUID)
+        val itemReference = database.child(currentUser!!).child(itemUID)
         itemReference.removeValue()
     }
 

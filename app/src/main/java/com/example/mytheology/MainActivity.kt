@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         fireBaseService = FirebaseMapper()
-        val userID = FirebaseAuth.getInstance().currentUser
 
+        fireBaseService.currentUser =  intent.extras!!.getString("user_id")
         //Main Elements
         listViewItem = findViewById(R.id.topics_list)
         MainEmptyMessage = findViewById(R.id.MainEmptyMessage)
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         List = mutableListOf<MainModel>()
         adapter = AdapterClass(this, List!!)
         listViewItem!!.adapter = adapter
-        fireBaseService.database.addValueEventListener(object : ValueEventListener {
+        fireBaseService.database.child(fireBaseService.currentUser!!).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 List!!.clear()
                 addItemToList(snapshot)
@@ -76,22 +76,15 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
     private fun addItemToList(snapshot: DataSnapshot){
 
         val items = snapshot.children.iterator()
-        if(items.hasNext()){
-            val IndexedValue = items.next()
-            val itemsIterator = IndexedValue.children.iterator()
-
-            while (itemsIterator.hasNext()){
-                val currentItem = itemsIterator.next()
-                val Itemdata = MainModel.createList()
-                val map = currentItem.getValue() as HashMap<String, Any>
-
-                Itemdata.UID = currentItem.key
-                Itemdata.sectionTitle = map.get("itemDataText") as String?
-                List!!.add(Itemdata)
-                if (!List!!.isEmpty()){
-                    MainEmptyMessage?.text  = ""
-                }
-            }
+        while (items.hasNext()){
+            val indexedValue = items.next()
+            val map = indexedValue.value as HashMap<String, Any>
+            val name = map["sectionTitle"] as String?
+            val uid = map["uid"] as String?
+            var m1 = MainModel()
+            m1.sectionTitle = name
+            m1.UID = uid
+            List!!.add(m1)
         }
         adapter.notifyDataSetChanged()
     }
@@ -105,6 +98,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         val b = Bundle()
         b.putString("1", title)
         b.putString("0", itemUID)//Title
+        b.putString("user_id", fireBaseService.currentUser)
         intent.putExtras(b)
         val intent = Intent(this@MainActivity, SectionActivity::class.java)
         intent.putExtras(b)

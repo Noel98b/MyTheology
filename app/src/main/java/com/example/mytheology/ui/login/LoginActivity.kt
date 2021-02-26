@@ -132,15 +132,12 @@ class LoginActivity : AppCompatActivity() {
         val displayName = model.displayName
         val intent = Intent(this@LoginActivity, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
-        //intent.putExtra("email_id" email)
+        val b = Bundle()
+        b.putString("user_id", model.displayName)
+        intent.putExtras(b)
         startActivity(intent)
         finish()
-        Toast.makeText(
-            applicationContext,
-            "$welcome $displayName",
-            Toast.LENGTH_LONG
-        ).show()
+        //welcome
     }
 
 

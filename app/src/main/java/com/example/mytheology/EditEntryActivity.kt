@@ -59,6 +59,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         setContentView(R.layout.activity_edit_entry)
 
         fireBaseService = FirebaseMapper()
+
         apiService = ApiServiceClass()
 
         //declare all spinners
@@ -76,6 +77,9 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val actionBar = supportActionBar
         actionBar!!.title = "Eintrag bearbeiten"
         actionBar.setDisplayHomeAsUpEnabled(true)
+
+        fireBaseService.currentUser = b!!.getString("user_id")
+        fireBaseService.sectionReference = FirebaseDatabase.getInstance().getReference(fireBaseService.currentUser!!)
 
         val sectionID = b!!.getString("1")
         fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryId)?.addValueEventListener(object :
@@ -141,6 +145,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
             val bForSearch = Bundle()
             bForSearch.putString("0", entryId)
             bForSearch.putString("1", sectionID)
+            bForSearch.putString("user_id", fireBaseService.currentUser)
             val intent2 = Intent(this@EditEntryActivity, SearchActivity::class.java)
             intent2.putExtras(bForSearch)
             startActivity(intent2)
