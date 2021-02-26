@@ -9,6 +9,7 @@ class FirebaseMapper {
 
     var database: DatabaseReference = FirebaseDatabase.getInstance().reference
     val sectionReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("section")
+    var result = MainModel()
 
 
     fun newSection(obj:MainModel) {
@@ -49,7 +50,5 @@ class FirebaseMapper {
         val itemReference = sectionReference.child(sectionID.toString()).child("entries").child(entryId)
         itemReference.removeValue()
     }
-
-
 
 }

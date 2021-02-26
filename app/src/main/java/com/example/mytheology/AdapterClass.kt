@@ -15,7 +15,7 @@ class AdapterClass(context: Context, List: MutableList<MainModel>): BaseAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val UID:String = itemList.get(position).UID as String
-        val itemTextData: String? = itemList.get(position).itemDataText as String?
+        val itemTextData: String? = itemList.get(position).sectionTitle as String?
         val done: Boolean? = itemList.get(position).done as? Boolean
         val entries: ArrayList<Entry>? = itemList.get(position).entries as ArrayList<Entry>?
 

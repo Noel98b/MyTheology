@@ -10,7 +10,7 @@ class MainModel {
     }
 
     var UID:String? = null
-    var itemDataText:String? = null
+    var sectionTitle:String? = null
     var done: Boolean? = false
     var entries: ArrayList<Entry>? = null
 

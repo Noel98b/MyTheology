@@ -43,6 +43,7 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
     private lateinit var createPdfButton: Button
     private lateinit var filename:String
     private lateinit var pdfService: PdfServiceClass
+    private lateinit var dataforPDF:MainModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,18 +65,27 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
         createPdfButton = findViewById<Button>(R.id.createPDF)
         filename = sectionID
+        dataforPDF = MainModel()
+        dataforPDF.sectionTitle = b!!.getString("1").toString()
+        initEntry()
 
         Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object:PermissionListener{
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
-                        pdfService.createPDFFile(Common.getAppPath(this@SectionActivity)+filename)
-                        printPDF()
+                        initEntry()
+                        if( dataforPDF.entries!!.size>0) {
+                            pdfService.createPDFFile(Common.getAppPath(this@SectionActivity) + filename, dataforPDF)
+                            printPDF()
+                        }else{
+                            Toast.makeText(applicationContext, "Keine Einträge vorhanden", Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
 
                 override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                    createPdfButton.isEnabled = false
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
@@ -93,15 +103,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         List = mutableListOf<Entry>()
         adapter = EntryAdapter(this, List!!)
         listViewItem!!.adapter = adapter
-        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                List!!.clear()
-                addItemToList(snapshot)
-            }
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(applicationContext, "Es gab ein Problem", Toast.LENGTH_LONG).show()
-            }
-        })
 
         s_fab.setOnClickListener{ view ->
 
@@ -129,6 +130,18 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         }
     }
 
+    private fun initEntry(){
+        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                List!!.clear()
+                addItemToList(snapshot)
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(applicationContext, "Es gab ein Problem", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun printPDF() {
             val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
@@ -142,16 +155,16 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
 
     private fun addItemToList(snapshot: DataSnapshot){
-
+        dataforPDF.entries = arrayListOf()
         val items = snapshot.children.iterator()
             while (items.hasNext()){
-                val IndexedValue = items.next()
-                val map = IndexedValue.getValue() as HashMap<String, Any>
+                val indexedValue = items.next()
+                val map = indexedValue.value as HashMap<String, Any>
                 var entry = Entry()
-                val Itemdata = MainModel.createList()
-                entry.entryID = IndexedValue.key
-                entry.title = map.get("title") as String?
-                entry.entry = map.get("entry") as String?
+                entry.entryID = indexedValue.key
+                entry.title = map["title"] as String?
+                entry.entry = map["entry"] as String?
+                dataforPDF.entries!!.add(entry)
                 List!!.add(entry)
                 if (!List!!.isEmpty()){
                     emptyMessage?.text  = ""
@@ -164,6 +177,18 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
     override fun onItemDelete( entryID: String) {
         fireBaseService.onEntryDelete(entryID,sectionID.toString())
         adapter.notifyDataSetChanged()
+        //delete from object
+        val size1 = dataforPDF.entries?.size
+        val index:Int? = findIndex(dataforPDF.entries, entryID)
+        if (index != null) {
+            dataforPDF.entries?.removeAt(index)
+        }
+        val size2 = dataforPDF.entries?.size
+    }
+
+    fun findIndex(arr: ArrayList<Entry>?, item: String): Int? {
+            return (arr!!.indices)
+                    .firstOrNull { i: Int -> item == arr?.get(i)?.entryID }
     }
 
     override fun onSectionClick(entryID: String) {
