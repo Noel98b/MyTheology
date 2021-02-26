@@ -67,7 +67,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         filename = sectionID
         dataforPDF = MainModel()
         dataforPDF.sectionTitle = b!!.getString("1").toString()
-        dataforPDF.entries = arrayListOf()
         initEntry()
 
         Dexter.withActivity(this).withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -75,9 +74,8 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
                     createPdfButton.setOnClickListener(){
-
+                        initEntry()
                         if( dataforPDF.entries!!.size>0) {
-
                             pdfService.createPDFFile(Common.getAppPath(this@SectionActivity) + filename, dataforPDF)
                             printPDF()
                         }else{
@@ -157,16 +155,16 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
 
     private fun addItemToList(snapshot: DataSnapshot){
-
+        dataforPDF.entries = arrayListOf()
         val items = snapshot.children.iterator()
             while (items.hasNext()){
-                val IndexedValue = items.next()
-                val map = IndexedValue.getValue() as HashMap<String, Any>
+                val indexedValue = items.next()
+                val map = indexedValue.value as HashMap<String, Any>
                 var entry = Entry()
-                entry.entryID = IndexedValue.key
-                entry.title = map.get("title") as String?
-                entry.entry = map.get("entry") as String?
-                dataforPDF.entries?.add(entry)
+                entry.entryID = indexedValue.key
+                entry.title = map["title"] as String?
+                entry.entry = map["entry"] as String?
+                dataforPDF.entries!!.add(entry)
                 List!!.add(entry)
                 if (!List!!.isEmpty()){
                     emptyMessage?.text  = ""
@@ -186,8 +184,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
             dataforPDF.entries?.removeAt(index)
         }
         val size2 = dataforPDF.entries?.size
-
-        Toast.makeText(applicationContext, size1.toString()+" " + size2.toString(), Toast.LENGTH_LONG).show()
     }
 
     fun findIndex(arr: ArrayList<Entry>?, item: String): Int? {
