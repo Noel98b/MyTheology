@@ -8,24 +8,35 @@ import com.google.firebase.database.*
 class FirebaseMapper {
 
     var database: DatabaseReference = FirebaseDatabase.getInstance().reference
-    val sectionReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("section")
     var result = MainModel()
+    var currentUser:String? = null
+    var sectionReference: DatabaseReference? =null
 
 
     fun newSection(obj:MainModel) {
-        val newSection = database.child("section").push()
+        val newSection = database.child(currentUser!!).push()
         obj.UID = newSection.key
         newSection.setValue(obj)
     }
 
+    fun newUser(ID:String) {
+        database.child(ID).setValue("user")
+        currentUser = ID
+        sectionReference = FirebaseDatabase.getInstance().getReference(currentUser!!)
+    }
+
+    fun setUser(ID:String) {
+        currentUser = ID
+    }
+
     fun saveEntry(entryId:String, sectionID:String, text:String, title:String){
-        sectionReference.child(sectionID.toString()).child("entries").child(entryId).child("entry").setValue(text)
-        sectionReference.child(sectionID.toString()).child("entries").child(entryId).child("title").setValue(title)
+        sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryId)?.child("entry")?.setValue(text)
+        sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryId)?.child("title")?.setValue(title)
     }
 
     fun getEntryData(entryId:String, sectionID: String):Entry{
         var curledEntry = Entry()
-        sectionReference.child(sectionID).child("entries").child(entryId).addValueEventListener(object :
+        sectionReference?.child(sectionID)?.child("entries")?.child(entryId)?.addValueEventListener(object :
                 ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value != null) {
@@ -47,8 +58,8 @@ class FirebaseMapper {
     }
 
     fun onEntryDelete(entryId: String, sectionID: String){
-        val itemReference = sectionReference.child(sectionID.toString()).child("entries").child(entryId)
-        itemReference.removeValue()
+        val itemReference = sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryId)
+        itemReference?.removeValue()
     }
 
 }

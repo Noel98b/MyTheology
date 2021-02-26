@@ -59,7 +59,7 @@ class SearchActivity : AppCompatActivity() {
             searchTheAPI()
         }
 
-        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").child(entryID).addValueEventListener(object :
+        fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryID)?.addValueEventListener(object :
                 ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.getValue() != null) {

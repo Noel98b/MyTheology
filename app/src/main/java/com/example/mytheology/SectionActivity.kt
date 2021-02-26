@@ -124,14 +124,14 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 thisentry.entry = ""
                 var lastKey:String? = null
                 var lastKeyInt = 0
-                fireBaseService.sectionReference.child(sectionID.toString()).child("entries").push().setValue(thisentry)
+                fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.push()?.setValue(thisentry)
             }
             alertDialog.show()
         }
     }
 
     private fun initEntry(){
-        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
+        fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 List!!.clear()
                 addItemToList(snapshot)

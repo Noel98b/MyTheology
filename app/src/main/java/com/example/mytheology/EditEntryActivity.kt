@@ -78,7 +78,7 @@ class EditEntryActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         actionBar.setDisplayHomeAsUpEnabled(true)
 
         val sectionID = b!!.getString("1")
-        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").child(entryId).addValueEventListener(object :
+        fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryId)?.addValueEventListener(object :
                 ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value != null) {

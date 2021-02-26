@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.karumi.dexter.Dexter
 import java.util.jar.Manifest
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         fireBaseService = FirebaseMapper()
+        val userID = FirebaseAuth.getInstance().currentUser
 
         //Main Elements
         listViewItem = findViewById(R.id.topics_list)
