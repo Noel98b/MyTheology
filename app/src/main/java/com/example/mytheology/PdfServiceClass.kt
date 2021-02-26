@@ -1,27 +1,18 @@
 package com.example.mytheology
 
-import android.content.Context
-import android.os.Build
-import android.print.PrintManager
-import android.provider.FontRequest
 import android.util.Log
-import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.getSystemService
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.BaseFont
-import com.itextpdf.text.pdf.PdfDocument
 import com.itextpdf.text.pdf.PdfWriter
 import com.itextpdf.text.pdf.draw.LineSeparator
 import com.itextpdf.text.pdf.draw.VerticalPositionMark
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
-import java.util.*
 
 class PdfServiceClass {
 
-    fun createPDFFile(path: String) {
+    fun createPDFFile(path: String, data: MainModel) {
+
         if(File(path).exists())
             File(path).delete()
         try{
@@ -33,52 +24,94 @@ class PdfServiceClass {
             document.addAuthor("email from login")
             document.addCreator("fname lname")
 
-            val colorAccent = BaseColor(0,153,204,255)
-            val valueFontSize = 20.0f
+            val colorAccent = BaseColor(0, 153, 204, 255)
+            val valueFontSize = 12.0f
             val titleFontSize = 36.0f
-            val headingfontsize = 26.0f
+            val headingfontsize = 16.0f
 
             val fontName = BaseFont.createFont("assets/fonts/Gravity-Regular.otf", "UTF-8", BaseFont.EMBEDDED)
 
-            var titleStyle = Font(fontName, titleFontSize, Font.NORMAL,BaseColor.BLACK)
-            addNewItem(document, "Title", Element.ALIGN_CENTER, titleStyle)
-
+            var titleStyle = Font(fontName, titleFontSize, Font.NORMAL, BaseColor.BLACK)
+            addNewItem(document, data.sectionTitle.toString(), Element.ALIGN_CENTER, titleStyle)
             val headingStyle = Font(fontName, headingfontsize, Font.NORMAL, colorAccent)
-            addNewItem(document, "Topic", Element.ALIGN_LEFT, headingStyle)
             val valueStyle = Font(fontName, valueFontSize, Font.NORMAL, BaseColor.BLACK)
-            addNewItem(document, "Solomon", Element.ALIGN_LEFT, valueStyle)
 
-            addLineSeperator(document)
+            for (j in 0 until (data.entries?.size!!)){
+                val result = StringBuilder()
+                var resetIndex = 0
+                var lastSpaceIndex = 0
+                for (i in 0 until (data.entries!![j].entry?.length!!)) {
+                    if(data.entries!![j].entry?.get(i)=='\n'){
+                        result.append(' ')
+                    }else{
+                        result.append(data.entries!![j].entry?.get(i))
+                    }
+                    if (result[i] ==' '){
+                        lastSpaceIndex = i
+                    }
 
-            addNewItem(document, "Date", Element.ALIGN_LEFT, headingStyle)
-            addNewItem(document, "25.02.2021", Element.ALIGN_LEFT, valueStyle)
+                    if(resetIndex>35){
+                        result[lastSpaceIndex] = '\n'
+                        resetIndex = 0
+                    }
+                    resetIndex = resetIndex +1
+                }
+                data.entries!![j].entry = result.toString()
+            }
 
-            addLineSeperator(document)
 
-            addNewItem(document, "General Info", Element.ALIGN_LEFT, headingStyle)
-            addNewItem(document, "King", Element.ALIGN_LEFT, valueStyle)
+                     for(i in 0 until data.entries?.size!!-1){
 
-            addLineSeperator(document)
-            addNewItem(document, "More Details", Element.ALIGN_CENTER, titleStyle)
 
-            addLineSeperator(document)
-            addNewItemWithLeftAndRight(document, "Birthdate", "1000 BC", valueStyle, valueStyle)
-            addNewItemWithLeftAndRight(document, "Wife", " Sulamit", valueStyle, valueStyle)
+                         if ( (i % 2 == 0) ){
+                             addLineSpace(document)
+                             addLineSeperator(document)
+                             addLineSpace(document)
+                             val chunkTitleLeft =  Chunk(data.entries!![i].title, headingStyle)
+                             val chunkTextLeft =  Chunk(data.entries!![i].entry, valueStyle)
+                             val chunkTitleRight =  Chunk(data.entries!![i + 1].title, headingStyle)
+                             val chunkTextRight =  Chunk(data.entries!![i + 1].entry, valueStyle)
 
-            addLineSeperator(document)
+                             val pH = Paragraph(chunkTitleLeft)
+                             pH.add("\n")
+                             pH.add(chunkTextLeft)
+                             pH.alignment = Element.ALIGN_LEFT
 
-            addLineSpace(document)
-            addLineSpace(document)
+                             val pR = Paragraph(chunkTitleRight)
+                             pR.add("\n")
+                             pR.add(chunkTextRight)
+                             pR.alignment = Element.ALIGN_RIGHT
 
-            addNewItemWithLeftAndRight(document, "Mission", " Build Temple", valueStyle, valueStyle)
+                             document.add(pH)
+                             addLineSpace(document)
+                             addLineSeperator(document)
+                             addLineSpace(document)
+                             document.add(pR)
+
+                         }
+                     }
+
+            if (data.entries?.size!! % 2 != 0){
+                addLineSpace(document)
+                addLineSeperator(document)
+                addLineSpace(document)
+                val chunkTitleLeft =  Chunk(data.entries!!.last().title, headingStyle)
+                val chunkTextLeft =  Chunk(data.entries!!.last().entry, valueStyle)
+
+                val p = Paragraph(chunkTitleLeft)
+                p.add("\n")
+                p.add(chunkTextLeft)
+                document.add(p)
+            }
 
             document.close()
 
 
         }catch (e: Exception){
-            Log.e("failure", ""+e.message)
+            Log.e("failure", "" + e.message)
 
         }
+
     }
 
     @Throws(DocumentException::class)
@@ -94,7 +127,7 @@ class PdfServiceClass {
     @Throws(DocumentException::class)
     private fun addLineSeperator(document: Document) {
         val lineseperator = LineSeparator()
-        lineseperator.lineColor = BaseColor(0,0,0,69)
+        lineseperator.lineColor = BaseColor(0, 0, 0, 69)
         addLineSpace(document)
         document.add(Chunk(lineseperator))
         addLineSpace(document)
@@ -113,3 +146,4 @@ class PdfServiceClass {
             document.add(p)
     }
 }
+

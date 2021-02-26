@@ -42,13 +42,13 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
             alertDialog.setView(textEditText)
             alertDialog.setPositiveButton("Hinzufügen"){ dialog, i ->
                 val sectionListElement = MainModel.createList()
-                sectionListElement.itemDataText= textEditText.text.toString()
+                sectionListElement.sectionTitle= textEditText.text.toString()
                 sectionListElement.done = false
                 sectionListElement.entries = arrayListOf<Entry>()
                 fireBaseService.newSection(sectionListElement)
                 Toast.makeText(
                         this,
-                        "Neues Thema " + sectionListElement.itemDataText + " wurde erstellt",
+                        "Neues Thema " + sectionListElement.sectionTitle + " wurde erstellt",
                         Toast.LENGTH_LONG
                 ).show()
             }
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
                 val map = currentItem.getValue() as HashMap<String, Any>
 
                 Itemdata.UID = currentItem.key
-                Itemdata.itemDataText = map.get("itemDataText") as String?
+                Itemdata.sectionTitle = map.get("itemDataText") as String?
                 List!!.add(Itemdata)
                 if (!List!!.isEmpty()){
                     MainEmptyMessage?.text  = ""
