@@ -58,6 +58,8 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         //unpack bundle and create actionbar
         val b = intent.extras
         sectionID = b!!.getString("0").toString()
+        fireBaseService.currentUser = b!!.getString("user_id")
+        fireBaseService.sectionReference = FirebaseDatabase.getInstance().getReference(fireBaseService.currentUser!!)
 
         val actionBar = supportActionBar
             actionBar!!.title = b!!.getString("1")
@@ -85,7 +87,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 }
 
                 override fun onPermissionDenied(response: PermissionDeniedResponse?) {
-                    createPdfButton.isEnabled = false
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
@@ -106,13 +107,6 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
 
         s_fab.setOnClickListener{ view ->
 
-            /*
-            intent.putExtras(b)
-            val intent = Intent(this@SectionActivity, CreateEntryActivity::class.java)
-            intent.putExtras(b)
-            startActivity(intent)
-
-             */
             val thisentry = Entry()
             val alertDialog = AlertDialog.Builder(this)
             val textEditText = EditText(this)
@@ -124,14 +118,14 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
                 thisentry.entry = ""
                 var lastKey:String? = null
                 var lastKeyInt = 0
-                fireBaseService.sectionReference.child(sectionID.toString()).child("entries").push().setValue(thisentry)
+                fireBaseService.sectionReference!!.child(sectionID.toString())?.child("entries")?.push()?.setValue(thisentry)
             }
             alertDialog.show()
         }
     }
 
     private fun initEntry(){
-        fireBaseService.sectionReference.child(sectionID.toString()).child("entries").addValueEventListener(object : ValueEventListener {
+        fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 List!!.clear()
                 addItemToList(snapshot)
@@ -195,9 +189,15 @@ class SectionActivity : AppCompatActivity(), UpdateAndDeleteEntry {
         val b = Bundle()
         b.putString("0", entryID)
         b.putString("1", sectionID)
+        b.putString("user_id", fireBaseService.currentUser)
         val intent = Intent(this@SectionActivity, EditEntryActivity::class.java)
         intent.putExtras(b)
         startActivity(intent)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 
 

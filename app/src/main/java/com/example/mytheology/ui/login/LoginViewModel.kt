@@ -8,6 +8,7 @@ import com.example.mytheology.data.LoginRepository
 import com.example.mytheology.data.Result
 
 import com.example.mytheology.R
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
 
@@ -21,11 +22,16 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         // can be launched in a separate asynchronous job
         val result = loginRepository.login(username, password)
 
-        if (result is Result.Success) {
-            _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
-        } else {
-            _loginResult.value = LoginResult(error = R.string.login_failed)
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(username, password).addOnCompleteListener {
+            task ->
+
+            if (task.isSuccessful){
+                _loginResult.value =
+                    LoginResult(success = LoggedInUserView(displayName = FirebaseAuth.getInstance().currentUser!!.uid))
+
+            }else{
+                _loginResult.value = LoginResult(error = R.string.login_failed)
+            }
         }
     }
 
