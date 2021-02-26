@@ -85,6 +85,9 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
             m1.sectionTitle = name
             m1.UID = uid
             List!!.add(m1)
+            if (!List!!.isEmpty()){
+                MainEmptyMessage?.text  = ""
+            }
         }
         adapter.notifyDataSetChanged()
     }
