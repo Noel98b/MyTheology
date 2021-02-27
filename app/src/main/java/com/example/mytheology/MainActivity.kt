@@ -95,6 +95,9 @@ class MainActivity : AppCompatActivity(), UpdateAndDelete {
   override fun onItemDelete(itemUID: String) {
         fireBaseService.onItemDelete(itemUID)
         adapter.notifyDataSetChanged()
+      if (!List!!.isEmpty()){
+          MainEmptyMessage?.text  = "Erstelle dein erstes Thema"
+      }
     }
 
     override fun onSectionClick(itemUID: String, title:String ) {
