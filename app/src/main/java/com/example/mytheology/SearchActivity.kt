@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +29,7 @@ class SearchActivity : AppCompatActivity() {
     private val lparams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
     )
+    val displayMetrics = DisplayMetrics()
     var offset: Int = 0
     lateinit var entryID: String
     lateinit var sectionID: String
@@ -36,6 +38,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var nextResult: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         b = intent.extras
@@ -131,11 +134,11 @@ class SearchActivity : AppCompatActivity() {
                 val tv = TextView(this)
                 gr.orientation = RadioGroup.HORIZONTAL
                 addBtn.text = "+"
-                addBtn.setBackgroundColor(-16711681)
+                addBtn.setBackgroundResource(R.drawable.roundedbutton)
                 tv.setTextColor(0xff000000)
                 tv.layoutParams = lparams
                 tv.text = item.reference + ": " + item.text + "\n"
-                tv.width = 1000
+                tv.width = (displayMetrics.widthPixels * 0.7).toInt()
                 tv.setTextIsSelectable(true)
                 gr.addView(tv)
                 gr.addView(addBtn)
