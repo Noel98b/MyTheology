@@ -65,11 +65,12 @@ class LoginActivity : AppCompatActivity() {
             }
             if (loginResult.success != null) {
                 updateUiWithUser(loginResult.success)
+                //Complete and destroy login activity once successful
+                finish()
             }
             setResult(Activity.RESULT_OK)
 
-            //Complete and destroy login activity once successful
-            finish()
+
         })
 
         username.afterTextChanged {
@@ -105,12 +106,13 @@ class LoginActivity : AppCompatActivity() {
         }
 
         register.setOnClickListener{
+            loading.visibility = View.VISIBLE
             FirebaseAuth.getInstance().createUserWithEmailAndPassword(username.text.toString(),password.text.toString())
                 .addOnCompleteListener {
                         task  ->
                     if(task.isSuccessful){
                         val firebaseUser:FirebaseUser = task.result!!.user!!
-                        Toast.makeText(applicationContext, "registered successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Registrierung erfolgreich!", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         intent.putExtra("user_id", firebaseUser.uid)
@@ -118,10 +120,8 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                         finish()
                     }else{
-                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                        startActivity(intent)
-                        Toast.makeText(applicationContext, "registered not successfully", Toast.LENGTH_SHORT).show()
                         Toast.makeText(applicationContext, task.exception!!.message.toString(), Toast.LENGTH_SHORT).show()
+                        loading.visibility = View.GONE
                     }
                 }
         }

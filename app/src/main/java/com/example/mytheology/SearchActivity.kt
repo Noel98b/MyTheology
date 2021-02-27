@@ -33,6 +33,7 @@ class SearchActivity : AppCompatActivity() {
     lateinit var sectionID: String
     lateinit var officialText: String
     lateinit var officialTitle: String
+    lateinit var nextResult: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,11 +58,12 @@ class SearchActivity : AppCompatActivity() {
             searchTheAPI()
         }
 
-        val nextResult: Button = findViewById(R.id.nextResults) as Button
+        nextResult = findViewById<Button>(R.id.nextResults)
         nextResult.setOnClickListener() {
             offset += 1
             searchTheAPI()
         }
+        nextResult.isEnabled = false
 
         fireBaseService.sectionReference?.child(sectionID.toString())?.child("entries")?.child(entryID)?.addValueEventListener(object :
                 ValueEventListener {
@@ -147,15 +149,7 @@ class SearchActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                     ).show()
                 }
-                /*
-                val resultb = Bundle()
-                resultb.putString("0", this.b!!.getString("0").toString())
-                resultb.putString("1", this.b!!.getString("1").toString())
-                resultb.putString("2", tv.text.toString())
-                val resultIntent = Intent()
-                resultIntent.putExtras(resultb)
-                setResult(Activity.RESULT_OK, resultIntent)
-                */
+                nextResult.isEnabled = true
             }
         }
     }
